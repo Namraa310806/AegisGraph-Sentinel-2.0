@@ -20,7 +20,7 @@ pip install -r requirements.txt
 python setup.py
 
 # 3. Generate synthetic data
-python -m src.data.data_generator
+python -m src.data.synthetic_data_gen
 
 # 4. Train the model (optional - can use pre-trained or random weights)
 python example_training.py
@@ -213,16 +213,15 @@ response = requests.post(
 
 ### Generate Synthetic Data
 ```python
-from src.data.data_generator import SyntheticFraudGenerator
+from src.data.synthetic_data_gen import generate_synthetic_graph
 
-generator = SyntheticFraudGenerator(
+data = generate_synthetic_graph(
     num_accounts=5000,
-    fraud_ratio=0.1,
-    output_dir='data/synthetic'
+    num_devices=2500,
+    num_transactions=25000,
+    num_logins=10000,
 )
-
-data = generator.generate()
-print(f"Generated {len(data['transactions'])} transactions")
+print(data)
 ```
 
 ### Train the Model
