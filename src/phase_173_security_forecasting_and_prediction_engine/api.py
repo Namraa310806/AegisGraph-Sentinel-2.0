@@ -10,12 +10,12 @@ from src.api.middleware.multi_tenancy import get_current_tenant
 router = APIRouter(prefix="/api/v1/phase173", tags=["Phase 173: Security Forecasting and Prediction Engine"])
 
 
-def resolve_tenant() -> str:
-    """Resolve tenant ID from authenticated request context."""
-    tenant_id = get_current_tenant()
-    if tenant_id is None:
-        raise HTTPException(status_code=401, detail="Tenant context not available")
-    return tenant_id
+def resolve_tenant(x_api_key: str = Header(...)) -> str:
+    if not x_api_key:
+        raise HTTPException(status_code=401, detail="Missing API key")
+    if x_api_key.startswith("tenant_"):
+        return x_api_key.split("_", 1)[1]
+    return "system"
 
 
 def get_svc(store: SecurityForecastingandPredictionEngineStore = Depends(get_store)) -> SecurityForecastingandPredictionEngineService:
