@@ -122,7 +122,12 @@ config:
 
 # Security settings
 security:
-  apiKey: ""
+  # Comma-separated lowercase SHA-256 hashes of the accepted API keys, injected
+  # as AEGIS_API_KEY_HASHES. This is the variable require_role() reads. Leaving
+  # it empty makes every role-protected route return 503.
+  # Generate with:
+  #   python -c "import secrets,hashlib; k=secrets.token_hex(32); print('key:',k); print('hash:',hashlib.sha256(k.encode()).hexdigest())"
+  apiKeyHashes: ""
   jwtSecret: ""
   neo4jPassword: ""
   redisPassword: ""

@@ -58,17 +58,16 @@ spec:
           value: {{ .Values.config.neo4j.uri }}
         - name: KAFKA_BOOTSTRAP_SERVERS
           value: {{ .Values.config.kafka.bootstrapServers }}
-        - name: REDIS_HOST
-          value: {{ .Values.config.redis.host }}
-        - name: REDIS_PORT
-          value: {{ .Values.config.redis.port | quote }}
-        - name: API_KEY
+        # The application reads REDIS_URL, not host and port separately.
+        - name: REDIS_URL
+          value: "redis://{{ .Values.config.redis.host }}:{{ .Values.config.redis.port }}/{{ .Values.config.redis.db }}"
+        - name: AEGIS_API_KEY_HASHES
           valueFrom:
             secretKeyRef:
               name: {{ include "aegisgraph.fullname" . }}-secrets
-              key: apiKey
+              key: apiKeyHashes
               optional: true
-        - name: JWT_SECRET
+        - name: AEGIS_JWT_SECRET
           valueFrom:
             secretKeyRef:
               name: {{ include "aegisgraph.fullname" . }}-secrets
