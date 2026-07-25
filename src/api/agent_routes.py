@@ -69,9 +69,9 @@ async def health_check():
 
 
 @router.get("/stats")
-async def get_stats(api_key: str = Header(None)):
+async def get_stats(x_api_key: str = Header(None, alias="X-API-Key")):
     """Get agent swarm statistics."""
-    verify_api_key(api_key)
+    verify_api_key(x_api_key)
     orchestrator = get_orchestrator()
     return {"stats": orchestrator.get_orchestrator_stats()}
 
@@ -80,10 +80,10 @@ async def get_stats(api_key: str = Header(None)):
 async def list_agents(
     agent_type: Optional[str] = None,
     status: Optional[str] = None,
-    api_key: str = Header(None),
+    x_api_key: str = Header(None, alias="X-API-Key"),
 ):
     """List all agents."""
-    verify_api_key(api_key)
+    verify_api_key(x_api_key)
     orchestrator = get_orchestrator()
     
     agents = list(orchestrator.agents.values())
@@ -103,10 +103,10 @@ async def list_agents(
 @router.post("/agents")
 async def create_agent(
     request: AgentCreateRequest,
-    api_key: str = Header(None),
+    x_api_key: str = Header(None, alias="X-API-Key"),
 ):
     """Create a new agent."""
-    verify_api_key(api_key)
+    verify_api_key(x_api_key)
     orchestrator = get_orchestrator()
     
     agent_type = AgentType(request.agent_type)
@@ -126,10 +126,10 @@ async def create_agent(
 @router.get("/agents/{agent_id}")
 async def get_agent(
     agent_id: str,
-    api_key: str = Header(None),
+    x_api_key: str = Header(None, alias="X-API-Key"),
 ):
     """Get agent by ID."""
-    verify_api_key(api_key)
+    verify_api_key(x_api_key)
     orchestrator = get_orchestrator()
     
     agent = orchestrator.get_agent(agent_id)
@@ -142,10 +142,10 @@ async def get_agent(
 @router.get("/agents/{agent_id}/messages")
 async def get_agent_messages(
     agent_id: str,
-    api_key: str = Header(None),
+    x_api_key: str = Header(None, alias="X-API-Key"),
 ):
     """Get messages for an agent."""
-    verify_api_key(api_key)
+    verify_api_key(x_api_key)
     orchestrator = get_orchestrator()
     
     messages = orchestrator.get_agent_messages(agent_id)
@@ -170,10 +170,10 @@ async def get_agent_messages(
 async def list_tasks(
     status: Optional[str] = None,
     priority: Optional[str] = None,
-    api_key: str = Header(None),
+    x_api_key: str = Header(None, alias="X-API-Key"),
 ):
     """List all tasks."""
-    verify_api_key(api_key)
+    verify_api_key(x_api_key)
     orchestrator = get_orchestrator()
     
     tasks = list(orchestrator.tasks.values())
@@ -193,10 +193,10 @@ async def list_tasks(
 @router.post("/tasks")
 async def create_task(
     request: TaskCreateRequest,
-    api_key: str = Header(None),
+    x_api_key: str = Header(None, alias="X-API-Key"),
 ):
     """Create a new task."""
-    verify_api_key(api_key)
+    verify_api_key(x_api_key)
     orchestrator = get_orchestrator()
     
     priority = TaskPriority(request.priority)
@@ -217,10 +217,10 @@ async def create_task(
 @router.post("/tasks/assign")
 async def assign_task(
     request: TaskAssignRequest,
-    api_key: str = Header(None),
+    x_api_key: str = Header(None, alias="X-API-Key"),
 ):
     """Assign a task to an agent."""
-    verify_api_key(api_key)
+    verify_api_key(x_api_key)
     orchestrator = get_orchestrator()
     
     success = orchestrator.assign_task(request.task_id, request.agent_id)
@@ -238,10 +238,10 @@ async def assign_task(
 @router.post("/tasks/complete")
 async def complete_task(
     request: TaskCompleteRequest,
-    api_key: str = Header(None),
+    x_api_key: str = Header(None, alias="X-API-Key"),
 ):
     """Complete a task."""
-    verify_api_key(api_key)
+    verify_api_key(x_api_key)
     orchestrator = get_orchestrator()
     
     success = orchestrator.complete_task(request.task_id, request.output_data)
@@ -258,10 +258,10 @@ async def complete_task(
 @router.post("/messages")
 async def send_message(
     request: MessageRequest,
-    api_key: str = Header(None),
+    x_api_key: str = Header(None, alias="X-API-Key"),
 ):
     """Send a message between agents."""
-    verify_api_key(api_key)
+    verify_api_key(x_api_key)
     orchestrator = get_orchestrator()
     
     message_id = orchestrator.send_message(
@@ -279,17 +279,17 @@ async def send_message(
 
 
 @router.get("/swarm/intelligence")
-async def get_swarm_intelligence_report(api_key: str = Header(None)):
+async def get_swarm_intelligence_report(x_api_key: str = Header(None, alias="X-API-Key")):
     """Get swarm intelligence report."""
-    verify_api_key(api_key)
+    verify_api_key(x_api_key)
     swarm = get_swarm_intelligence()
     return swarm.get_intelligence_report()
 
 
 @router.get("/swarm/behaviors")
-async def get_emergent_behaviors(api_key: str = Header(None)):
+async def get_emergent_behaviors(x_api_key: str = Header(None, alias="X-API-Key")):
     """Get emergent behaviors detected."""
-    verify_api_key(api_key)
+    verify_api_key(x_api_key)
     swarm = get_swarm_intelligence()
     return {
         "behaviors": swarm.detect_emergent_behavior(),
