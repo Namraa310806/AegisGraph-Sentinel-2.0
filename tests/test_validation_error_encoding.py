@@ -27,6 +27,28 @@ BASE_TRANSACTION = {
 }
 
 
+def _clear_rate_limit_state():
+    """Drop accumulated rate limit counters so 429 cannot mask the status code.
+
+    These cases assert on exact statuses, and the global middleware limit is
+    shared across the whole suite, so an earlier file can otherwise exhaust the
+    window before this one runs.
+    """
+    from src.api.main import limiter
+    from src.api.validators import reset_rate_limiter
+
+    reset_rate_limiter()
+    for attribute in ("storage", "_storage"):
+        storage = getattr(limiter, attribute, None)
+        if storage is None:
+            continue
+        inner = getattr(storage, "storage", None)
+        if inner is not None:
+            inner.clear()
+        elif hasattr(storage, "clear"):
+            storage.clear()
+
+
 @pytest.fixture(autouse=True)
 def _analyst_auth(monkeypatch):
     monkeypatch.setenv(
@@ -35,6 +57,7 @@ def _analyst_auth(monkeypatch):
     from src.api.security import _invalidate_auth_cache
 
     _invalidate_auth_cache()
+    _clear_rate_limit_state()
     yield
     _invalidate_auth_cache()
 
