@@ -150,7 +150,7 @@ aegis/AegisGraph-Sentinel-2.0/
 │   └── CHANGELOG.md                     ○ Version history
 │
 └── 🚀 Root Files
-    ├── setup.py                         ○ Package installation
+    ├── check_environment.py             ○ Environment verification
     ├── pyproject.toml                   ○ Modern Python config
     └── Makefile                         ○ Common commands
 

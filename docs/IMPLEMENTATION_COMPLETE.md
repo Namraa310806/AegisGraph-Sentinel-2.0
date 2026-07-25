@@ -52,7 +52,7 @@ All components of the AegisGraph Sentinel 2.0 fraud detection system have been s
 - ✅ `requirements.txt` - Python dependencies
 - ✅ `config/config.yaml` - Configuration file
 - ✅ `.gitignore` - Git ignore patterns
-- ✅ `setup.py` - Setup & verification script
+- ✅ `check_environment.py` - Setup & verification script
 - ✅ `deploy.py` - Automated deployment script
 - ✅ `example_usage.py` - API usage examples
 - ✅ `example_training.py` - Training examples
@@ -81,7 +81,7 @@ Generates data, trains model, starts API
 pip install -r requirements.txt
 
 # 2. Verify
-python setup.py
+python check_environment.py
 
 # 3. Generate data
 python -m src.data.data_generator
@@ -172,7 +172,7 @@ AegisGraph Sentinel 2.0/
 ├── PROJECT_STRUCTURE.md         # Structure docs
 ├── DEPLOYMENT.md                # Deployment guide
 ├── requirements.txt             # Dependencies
-├── setup.py                     # Setup script
+├── check_environment.py         # Environment verification script
 ├── deploy.py                    # Deployment script
 ├── example_usage.py             # API examples
 └── example_training.py          # Training examples
@@ -240,7 +240,7 @@ AegisGraph Sentinel 2.0/
 
 Run this command to verify everything is ready:
 ```bash
-python setup.py
+python check_environment.py
 ```
 
 Expected output:
@@ -297,7 +297,7 @@ The AegisGraph Sentinel 2.0 fraud detection system is complete and ready for use
 pip install -r requirements.txt && python -m src.api.main
 ```
 
-**Questions?** Check the documentation files or run `python setup.py` to verify your installation.
+**Questions?** Check the documentation files or run `python check_environment.py` to verify your installation.
 
 ---
 
