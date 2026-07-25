@@ -158,13 +158,6 @@ if not st.session_state.logged_in:
                 st.error("Login failed due to an unexpected error.")
     st.stop()
 
-# API Configuration
-API_URL = os.getenv("API_URL", "http://127.0.0.1:8000")
-MAX_BATCH_UPLOAD_BYTES = int(os.getenv("MAX_BATCH_UPLOAD_BYTES", 5 * 1024 * 1024))
-BATCH_PREVIEW_ROWS = int(os.getenv("BATCH_PREVIEW_ROWS", 10))
-BATCH_CHUNK_SIZE = int(os.getenv("BATCH_CHUNK_SIZE", 50))
-BATCH_MAX_ROWS = int(os.getenv("BATCH_MAX_ROWS", 500))
-
 
 def display_decision_badge(decision: str):
     """
