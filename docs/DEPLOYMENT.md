@@ -17,7 +17,7 @@ python deploy.py --mode full
 pip install -r requirements.txt
 
 # 2. Verify setup
-python setup.py
+python check_environment.py
 
 # 3. Generate synthetic data
 python -m src.data.data_generator
@@ -82,7 +82,7 @@ pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -
 
 ### Step 3: Verify Installation
 ```bash
-python setup.py
+python check_environment.py
 ```
 
 Expected output:
