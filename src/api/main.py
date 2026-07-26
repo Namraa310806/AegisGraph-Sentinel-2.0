@@ -6327,6 +6327,36 @@ async def create_campaign(request: dict):
     return campaign.to_dict()
 
 
+# Static campaign paths are declared before /api/v1/campaigns/{campaign_id}.
+# FastAPI matches in declaration order, so a parameterised path declared
+# first captures every sibling literal path.
+@app.get(
+    "/api/v1/campaigns/stats",
+    tags=["Campaign Attribution"],
+    summary="Get campaign statistics",
+    dependencies=[Depends(require_role(Role.ANALYST))],
+)
+async def get_campaign_stats():
+    """Get campaign attribution statistics."""
+    service = get_campaign_service()
+    stats = service.get_campaign_statistics()
+    return stats.to_dict()
+
+
+@app.get(
+    "/api/v1/campaigns/discover",
+    tags=["Campaign Attribution"],
+    summary="Discover campaigns by indicators",
+    dependencies=[Depends(require_role(Role.ANALYST))],
+)
+async def discover_campaigns(indicators: str = Query(..., description="Comma-separated indicators")):
+    """Discover campaigns by indicators."""
+    service = get_campaign_service()
+    indicator_list = [i.strip() for i in indicators.split(",")]
+    campaigns = service.discover_campaign(indicator_list)
+    return [c.to_dict() for c in campaigns]
+
+
 @app.get(
     "/api/v1/campaigns/{campaign_id}",
     tags=["Campaign Attribution"],
@@ -6505,19 +6535,6 @@ async def search_actors(
     return [a.to_dict() for a in actors]
 
 
-@app.get(
-    "/api/v1/campaigns/stats",
-    tags=["Campaign Attribution"],
-    summary="Get campaign statistics",
-    dependencies=[Depends(require_role(Role.ANALYST))],
-)
-async def get_campaign_stats():
-    """Get campaign attribution statistics."""
-    service = get_campaign_service()
-    stats = service.get_campaign_statistics()
-    return stats.to_dict()
-
-
 @app.post(
     "/api/v1/campaigns/correlate",
     tags=["Campaign Attribution"],
@@ -6531,15 +6548,3 @@ async def correlate_campaigns(request: dict):
     return service.correlate_campaigns(campaign_ids)
 
 
-@app.get(
-    "/api/v1/campaigns/discover",
-    tags=["Campaign Attribution"],
-    summary="Discover campaigns by indicators",
-    dependencies=[Depends(require_role(Role.ANALYST))],
-)
-async def discover_campaigns(indicators: str = Query(..., description="Comma-separated indicators")):
-    """Discover campaigns by indicators."""
-    service = get_campaign_service()
-    indicator_list = [i.strip() for i in indicators.split(",")]
-    campaigns = service.discover_campaign(indicator_list)
-    return [c.to_dict() for c in campaigns]
