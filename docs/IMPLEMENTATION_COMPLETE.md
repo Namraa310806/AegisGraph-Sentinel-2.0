@@ -33,7 +33,7 @@ All components of the AegisGraph Sentinel 2.0 fraud detection system have been s
 - ✅ `src/api/schemas.py` - Pydantic validation schemas
 
 #### 6. **Data Generation** (1 file)
-- ✅ `src/data/data_generator.py` - Synthetic fraud data generator
+- ✅ `src/data/synthetic_data_gen.py` - Synthetic fraud data generator
 
 #### 7. **Utilities** (1 file)
 - ✅ `src/utils/helpers.py` - Helper functions
@@ -84,7 +84,7 @@ pip install -r requirements.txt
 python check_environment.py
 
 # 3. Generate data
-python -m src.data.data_generator
+python -m src.data.synthetic_data_gen
 
 # 4. Train model
 python example_training.py
@@ -273,7 +273,7 @@ python example_usage.py
 
 ### Generate Data
 ```bash
-python -m src.data.data_generator
+python -m src.data.synthetic_data_gen
 ```
 
 ### Train Model
