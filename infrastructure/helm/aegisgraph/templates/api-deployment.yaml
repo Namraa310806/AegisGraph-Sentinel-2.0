@@ -24,8 +24,8 @@ spec:
         component: api
       annotations:
         prometheus.io/scrape: "true"
-        prometheus.io/port: "9090"
-        prometheus.io/path: "/metrics"
+        prometheus.io/port: "{{ .Values.service.targetPort }}"
+        prometheus.io/path: "{{ .Values.monitoring.prometheus.path }}"
     spec:
       serviceAccountName: {{ include "aegisgraph.serviceAccountName" . }}
       securityContext:
@@ -42,10 +42,10 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - name: http
-          containerPort: {{ .Values.service.port }}
+          containerPort: {{ .Values.service.targetPort }}
           protocol: TCP
         - name: grpc
-          containerPort: {{ .Values.service.grpcPort }}
+          containerPort: {{ .Values.service.grpcTargetPort }}
           protocol: TCP
         env:
         - name: API_URL
