@@ -1015,6 +1015,7 @@ class AppState:
         self.settings = settings
 
         self.start_time = time.time()
+        self.startup_complete = False
         self.requests_processed = 0
         self.decisions = {decision.value: 0 for decision in FraudDecision}
         self.total_risk_score = 0.0
@@ -1389,6 +1390,7 @@ def _initialize_innovation_runtime(startup_logger):
 
 
 def _startup_ready(startup_logger):
+    state.startup_complete = True
     startup_logger.info(
         "AegisGraph Sentinel 2.0 is ready",
         event_type="startup_complete",
@@ -1876,6 +1878,26 @@ async def liveness():
     Returns immediately to ensure responsiveness.
     """
     return {"status": "ok", "service": "AegisGraph Sentinel 2.0"}
+
+
+@app.get(
+    "/health/readiness",
+    tags=["Health"],
+    summary="Readiness probe",
+)
+async def readiness(response: Response):
+    """Report whether the process finished starting up and can serve traffic.
+
+    Returns 503 until the lifecycle manager completes, so an orchestrator does
+    not route requests to a pod that is still loading its model or graph.
+    """
+    ready = bool(getattr(state, "startup_complete", False))
+    if not ready:
+        response.status_code = 503
+    return {
+        "status": "ready" if ready else "starting",
+        "service": "AegisGraph Sentinel 2.0",
+    }
 
 
 @app.get(
