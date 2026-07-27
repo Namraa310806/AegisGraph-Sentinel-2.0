@@ -44,10 +44,12 @@ class FraudScore:
     inference_time_ms: float
     graph_size: int  # Number of nodes in subgraph
     
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert the fraud score to a dictionary."""
         return asdict(self)
     
     def to_json(self) -> str:
+        """Serialize the fraud score to a JSON string."""
         return json.dumps(self.to_dict(), default=str)
 
 
@@ -64,6 +66,7 @@ class _ThreadSafeCache:
         self._maxsize = maxsize
 
     def get(self, key: str) -> Optional[Dict]:
+        """Retrieve a cached value and move it to the end (most recently used)."""
         with self._lock:
             if key not in self._data:
                 return None
@@ -71,6 +74,7 @@ class _ThreadSafeCache:
             return self._data[key]
 
     def set(self, key: str, value: Dict) -> None:
+        """Store a value in the cache, evicting the least recently used item if at capacity."""
         with self._lock:
             if key in self._data:
                 self._data.move_to_end(key)
