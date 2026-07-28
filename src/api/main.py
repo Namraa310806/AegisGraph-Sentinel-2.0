@@ -3438,8 +3438,13 @@ async def link_entity(request: EntityLinkRequest):
         evidence=request.evidence or [],
     )
     
-    # Link entities
-    result = resolver.link_entities(link_req)
+    # Link entities. The resolver raises ValueError for input it cannot act on,
+    # for example an entity id that resolves to nothing, which is a client error
+    # rather than a server fault.
+    try:
+        result = resolver.link_entities(link_req)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
     
     processing_time = (time.time() - start_time) * 1000
     
