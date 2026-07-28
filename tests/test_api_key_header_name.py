@@ -8,21 +8,27 @@ security scheme, is X-API-Key, so such a route cannot be called as documented.
 
 import ast
 import glob
+import hashlib
 import io
 
 import pytest
 from fastapi.testclient import TestClient
 
 from src.api.main import app
+from src.api.security import _invalidate_auth_cache
 
 AGENT_ENDPOINT = "/api/v1/agents/stats"
 VALID_KEY = "agent-header-test-key"
 
 
 @pytest.fixture(autouse=True)
-def _legacy_backend(monkeypatch):
-    monkeypatch.setenv("AEGIS_API_KEY", VALID_KEY)
+def _analyst_key_configured(monkeypatch):
+    digest = hashlib.sha256(VALID_KEY.encode()).hexdigest()
+    monkeypatch.setenv("AEGIS_ROLE_ANALYST", digest)
+    monkeypatch.setenv("AEGIS_API_KEY_HASHES", digest)
+    _invalidate_auth_cache()
     yield
+    _invalidate_auth_cache()
 
 
 def _header_params():

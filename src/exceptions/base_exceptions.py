@@ -64,3 +64,13 @@ class BillingError(AegisException):
     default_code = ErrorCode.PROCESSING_ERROR
     default_status_code = 402
 
+
+class JSONSerializationError(ProcessingException):
+    """Raised when an object cannot be serialized to JSON.
+
+    Covers non-JSON-serializable types, circular references, and
+    objects whose __dict__ contains non-serializable values.
+    """
+    default_code = ErrorCode.PROCESSING_ERROR
+    default_status_code = 500
+
