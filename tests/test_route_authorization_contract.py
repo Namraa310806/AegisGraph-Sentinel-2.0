@@ -21,6 +21,18 @@ from src.api.security import _invalidate_auth_cache
 # Route inventory, sorted by method then path. Regenerate with the helper in
 # test_protected_route_inventory_is_current when a route is added or removed.
 PROTECTED_ROUTES = [
+    ("GET", "/api/v1/agents/agents"),
+    ("GET", "/api/v1/agents/agents/{agent_id}"),
+    ("GET", "/api/v1/agents/agents/{agent_id}/messages"),
+    ("GET", "/api/v1/agents/stats"),
+    ("GET", "/api/v1/agents/swarm/behaviors"),
+    ("GET", "/api/v1/agents/swarm/intelligence"),
+    ("GET", "/api/v1/agents/tasks"),
+    ("POST", "/api/v1/agents/agents"),
+    ("POST", "/api/v1/agents/messages"),
+    ("POST", "/api/v1/agents/tasks"),
+    ("POST", "/api/v1/agents/tasks/assign"),
+    ("POST", "/api/v1/agents/tasks/complete"),
     ("GET", "/api/v1/actors"),
     ("GET", "/api/v1/actors/{actor_id}"),
     ("GET", "/api/v1/actors/{actor_id}/profile"),
