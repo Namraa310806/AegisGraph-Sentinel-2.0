@@ -1729,13 +1729,27 @@ ACTIVE_HONEYPOTS = REGISTRY._names_to_collectors.get("aegis_active_honeypots") o
     "Number of currently active honeypots"
 )
 
+# Label used when no route matched, so unrouted paths share one series instead
+# of adding a new one each.
+UNMATCHED_ENDPOINT_LABEL = "unmatched"
+
+
+def _metric_endpoint_label(request: Request) -> str:
+    """Return the route template for a request, never the raw path.
+
+    Labelling by ``request.url.path`` gives every distinct id its own time
+    series, so any caller can grow the registry without bound.
+    """
+    route = request.scope.get("route")
+    return getattr(route, "path", None) or UNMATCHED_ENDPOINT_LABEL
+
+
 @app.middleware("http")
 async def prometheus_latency_middleware(request: Request, call_next):
-    endpoint = request.url.path
     start_time = time.time()
     response = await call_next(request)
     duration = time.time() - start_time
-    API_LATENCY.labels(endpoint=endpoint).observe(duration)
+    API_LATENCY.labels(endpoint=_metric_endpoint_label(request)).observe(duration)
     return response
 
 @app.get("/metrics", tags=["System"])
