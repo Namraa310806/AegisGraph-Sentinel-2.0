@@ -26,6 +26,7 @@ from threading import Lock
 from typing import Any, Dict, List, Optional
 
 from ..lru_cache import LRUCache
+from ..exceptions import JSONSerializationError
 
 logger = logging.getLogger(__name__)
 
@@ -2550,7 +2551,13 @@ async def check_batch_transactions(request: BatchTransactionRequest):
                     yield ","
                 else:
                     first_result = False
-                yield json.dumps(result.model_dump(mode="json"), separators=(",", ":"))
+                try:
+                    yield json.dumps(result.model_dump(mode="json"), separators=(",", ":"))
+                except (TypeError, ValueError) as e:
+                    raise JSONSerializationError(
+                        f"Failed to serialize streaming result: {e}",
+                        details={"step": "stream_result_serialization"},
+                    )
 
         processing_time_ms = (time.time() - start_time) * 1000
         yield (
