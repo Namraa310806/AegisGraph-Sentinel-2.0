@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
-from typing import List, Dict, Any
+from fastapi import APIRouter, Depends, HTTPException
+from typing import List, Dict, Any, Optional
 from .schemas import SecurityForecastingandPredictionEngineCreateSchema, SecurityForecastingandPredictionEngineAlertSchema
 from .store import get_store, SecurityForecastingandPredictionEngineStore
 from .service import SecurityForecastingandPredictionEngineService
 from .analytics import SecurityForecastingandPredictionEngineAnalytics
 from src.api.security import require_role, Role
+from src.api.middleware.multi_tenancy import get_current_tenant
 
 router = APIRouter(prefix="/api/v1/phase173", tags=["Phase 173: Security Forecasting and Prediction Engine"])
 
