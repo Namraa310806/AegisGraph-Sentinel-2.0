@@ -2509,7 +2509,7 @@ async def fraud_stream_websocket(websocket: WebSocket, client_id: str):
                 await ws_manager.heartbeat(client_id)
                 await websocket.send_text("pong")
     except WebSocketDisconnect:
-        await ws_manager.disconnect(client_id)
+        await ws_manager.disconnect(client_id, websocket)
 
 @app.post(
     "/api/v1/fraud/batch",
