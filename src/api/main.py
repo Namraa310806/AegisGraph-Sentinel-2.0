@@ -1855,6 +1855,12 @@ async def root():
     }
 
 
+@app.get("/api/v1/auth/whoami", tags=["Authentication"])
+async def whoami(role: Role = Depends(require_role(Role.VIEWER))):
+    """Return the role attached to the presented API key."""
+    return {"role": role.value}
+
+
 @app.get(
     "/api/v1/health",
     response_model=HealthCheckResponse,
