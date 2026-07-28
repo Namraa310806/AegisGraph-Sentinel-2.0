@@ -356,6 +356,9 @@ class ProductionRiskScorer:
         Returns:
             (decision, confidence)
         """
+        if risk_score is None:
+            return "ALLOW", 0.0
+        risk_score = max(0.0, min(1.0, risk_score))
         if risk_score >= 0.90:
             return 'BLOCK', risk_score
         elif risk_score >= 0.60:
