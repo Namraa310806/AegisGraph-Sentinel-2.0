@@ -973,6 +973,20 @@ class EntityLinkRequest(BaseModel):
             raise ValueError(f"relationship_type must be one of: {valid_types}")
         return v.upper()
 
+    @model_validator(mode="after")
+    def require_an_identifier_for_each_side(self) -> "EntityLinkRequest":
+        """Each side needs an id or a value.
+
+        EntityResolver.link_entities enforces this too, but by raising ValueError
+        from the service layer, which reaches the caller as a 500. Declaring it
+        here makes it a 422 and puts the constraint in the OpenAPI schema.
+        """
+        if not self.source_entity_id and not self.source_value:
+            raise ValueError("Either source_entity_id or source_value must be provided")
+        if not self.target_entity_id and not self.target_value:
+            raise ValueError("Either target_entity_id or target_value must be provided")
+        return self
+
 
 class EntityResponse(BaseModel):
     """Response containing entity information."""
