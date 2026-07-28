@@ -2151,26 +2151,34 @@ async def check_transaction(
         # Thresholds are read from config/thresholds.yaml (fallback_scoring section)
         # so they can be tuned without a code change.
         _model_degraded = False
-        _trigger = _FALLBACK_SCORING.get("fallback_trigger_score", 0.25)
-        if _is_degraded_scoring_mode() and risk_result.get('risk_score', 0) <= _trigger:
+        if _is_degraded_scoring_mode():
             amount = request.amount
             _block_above = _FALLBACK_SCORING.get("block_above", 200000)
             _block_med_above = _FALLBACK_SCORING.get("block_medium_above", 100000)
             _review_above = _FALLBACK_SCORING.get("review_above", 50000)
             _allow_above = _FALLBACK_SCORING.get("allow_above", 10000)
 
+            _band_score = None
+            _band_decision = None
             if amount > _block_above:
-                risk_result['risk_score'] = _FALLBACK_SCORING.get("block_score", 0.85)
-                internal_decision = "BLOCK"
+                _band_score = _FALLBACK_SCORING.get("block_score", 0.85)
+                _band_decision = "BLOCK"
             elif amount > _block_med_above:
-                risk_result['risk_score'] = _FALLBACK_SCORING.get("block_medium_score", 0.72)
-                internal_decision = "BLOCK"
+                _band_score = _FALLBACK_SCORING.get("block_medium_score", 0.72)
+                _band_decision = "BLOCK"
             elif amount > _review_above:
-                risk_result['risk_score'] = _FALLBACK_SCORING.get("review_score", 0.48)
-                internal_decision = "REVIEW"
+                _band_score = _FALLBACK_SCORING.get("review_score", 0.48)
+                _band_decision = "REVIEW"
             elif amount > _allow_above:
-                risk_result['risk_score'] = _FALLBACK_SCORING.get("allow_score", 0.35)
-                internal_decision = "ALLOW"
+                _band_score = _FALLBACK_SCORING.get("allow_score", 0.35)
+                _band_decision = "ALLOW"
+
+            # The band acts as a floor. Taking the maximum means the override can
+            # only raise a score, never lower one, so a heuristic that already
+            # scored higher than its band keeps its own result and its decision.
+            if _band_score is not None and _band_score >= risk_result.get('risk_score', 0):
+                risk_result['risk_score'] = _band_score
+                internal_decision = _band_decision
 
             decision = _decision_to_api_value(internal_decision)
             _model_degraded = True
