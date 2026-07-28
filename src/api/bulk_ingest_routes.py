@@ -11,6 +11,22 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
+
+class CSVValidationError(Exception):
+    """Raised when a CSV row fails validation during bulk ingestion."""
+
+    def __init__(
+        self,
+        message: str,
+        row: Optional[int] = None,
+        column: Optional[str] = None,
+        raw_value: Optional[str] = None,
+    ):
+        super().__init__(message)
+        self.row = row
+        self.column = column
+        self.raw_value = raw_value
+
 import networkx as nx
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 
@@ -26,7 +42,17 @@ logger = logging.getLogger(__name__)
 
 
 # Helper to coerce values to proper Python types from CSV string
-def parse_value(val: str) -> Any:
+def parse_value(
+    val: str,
+    *,
+    row: Optional[int] = None,
+    column: Optional[str] = None,
+) -> Any:
+    """Parse a CSV cell value to an appropriate Python type.
+
+    Raises CSVValidationError with row/column context when a numeric value
+    cannot be parsed, making ingestion failures actionable for callers.
+    """
     val_clean = val.strip()
     val_lower = val_clean.lower()
     if val_lower == "true":
@@ -40,6 +66,13 @@ def parse_value(val: str) -> Any:
             return float(val_clean)
         return int(val_clean)
     except ValueError:
+        if row is not None and column is not None:
+            raise CSVValidationError(
+                f"Cannot parse '{val_clean}' as a number in column '{column}', row {row}",
+                row=row,
+                column=column,
+                raw_value=val_clean,
+            )
         return val_clean
 
 
@@ -158,10 +191,12 @@ class BulkIngestionManager:
         """Parse lists of nodes/edges and insert them safely into the global graph state."""
         from src.api.main import state
 
-        # Ensure graph is initialized
+        # Ensure a container exists to ingest into. graph_loaded is deliberately
+        # left alone: it means the configured fraud graph was loaded at startup,
+        # and setting it here would switch scoring out of degraded mode and make
+        # /health report a graph that was never loaded.
         if getattr(state, "transaction_graph", None) is None:
             state.transaction_graph = nx.DiGraph()
-            state.graph_loaded = True
             logger.info("Initializing new in-memory transaction graph.")
 
         success_count = 0
@@ -387,7 +422,7 @@ async def ingest_bulk_file(
                             "type",
                             "edge_type",
                         ):
-                            properties[k_clean] = parse_value(v)
+                            properties[k_clean] = parse_value(v, row=idx, column=k_clean)
 
                     edges.append(
                         {
@@ -427,7 +462,7 @@ async def ingest_bulk_file(
                         k_clean = k.strip()
                         k_lower = k_clean.lower()
                         if k_lower not in ("id", "node_id", "type", "node_type"):
-                            properties[k_clean] = parse_value(v)
+                            properties[k_clean] = parse_value(v, row=idx, column=k_clean)
 
                     nodes.append(
                         {
