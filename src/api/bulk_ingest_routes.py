@@ -158,10 +158,12 @@ class BulkIngestionManager:
         """Parse lists of nodes/edges and insert them safely into the global graph state."""
         from src.api.main import state
 
-        # Ensure graph is initialized
+        # Ensure a container exists to ingest into. graph_loaded is deliberately
+        # left alone: it means the configured fraud graph was loaded at startup,
+        # and setting it here would switch scoring out of degraded mode and make
+        # /health report a graph that was never loaded.
         if getattr(state, "transaction_graph", None) is None:
             state.transaction_graph = nx.DiGraph()
-            state.graph_loaded = True
             logger.info("Initializing new in-memory transaction graph.")
 
         success_count = 0
